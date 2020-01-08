@@ -135,6 +135,7 @@ export function useFormik<Values extends FormikValues = FormikValues>({
   isInitialValid,
   enableReinitialize = false,
   onSubmit,
+  onSubmitRejected,
   ...rest
 }: FormikConfig<Values>) {
   const props = {
@@ -142,6 +143,7 @@ export function useFormik<Values extends FormikValues = FormikValues>({
     validateOnBlur,
     validateOnMount,
     onSubmit,
+    onSubmitRejected,
     ...rest,
   };
   const initialValues = React.useRef(props.initialValues);
@@ -730,6 +732,12 @@ export function useFormik<Values extends FormikValues = FormikValues>({
     return onSubmit(state.values, imperativeMethods);
   });
 
+  const executeSubmitRejection = useEventCallback(() => {
+    return typeof onSubmitRejected === 'function'
+      ? onSubmitRejected(state.values, state.errors, imperativeMethods)
+      : Promise.resolve()
+  });
+
   const submitForm = useEventCallback(() => {
     dispatch({ type: 'SUBMIT_ATTEMPT' });
     return validateFormWithHighPriority().then(
@@ -788,6 +796,11 @@ export function useFormik<Values extends FormikValues = FormikValues>({
           if (isInstanceOfError) {
             throw combinedErrors;
           }
+
+          //
+          // handle submission rejection callback here
+          //
+          executeSubmitRejection();
         }
         return;
       }

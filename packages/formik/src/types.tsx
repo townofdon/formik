@@ -204,6 +204,17 @@ export interface FormikConfig<Values> extends FormikSharedConfig {
     values: Values,
     formikHelpers: FormikHelpers<Values>
   ) => void | Promise<any>;
+
+  /**
+   * Submission rejection handler. Useful for debugging purposes, programmatically
+   * controlling other validation state, etc.
+   */
+  onSubmitRejected?: (
+    values: Values,
+    errors: FormikErrors<Values>,
+    formikHelpers: FormikHelpers<Values>
+  ) => void | Promise<any>;
+
   /**
    * A Yup Schema or a function that returns a Yup schema
    */
